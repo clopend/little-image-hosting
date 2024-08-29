@@ -1,18 +1,10 @@
 import express from 'express';
-import fs from 'fs';
-import multer from 'multer';
-
 import config from './config.mjs';
-
-const upload = multer({ storage: multer.memoryStorage() });
+import upload from './upload.mjs';
 
 const app = express();
 
-app.put('/upload', upload.single('file'), function (req, res) {
-  fs.writeFile(`images/${req.file.originalname}`, req.file.buffer, function () {
-    res.status(200).send();
-  });
-});
+app.use('/upload', upload);
 
 app.use(
   express.static('public', {
@@ -21,7 +13,7 @@ app.use(
 );
 
 app.use(
-  express.static('images', {
+  express.static(config.uploadDir, {
     maxAge: 300 * 24 * 60 * 60 * 1000,
   }),
 );
@@ -32,4 +24,4 @@ app.get('*', function (_, res) {
 
 app.listen(config.port);
 
-console.log('App start listen at port: ', config.port);
+console.log('App listening on port:', config.port);
